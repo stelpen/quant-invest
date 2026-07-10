@@ -1,0 +1,74 @@
+:root {
+  --qi-primary: #409eff;
+  --qi-success: #67c23a;
+  --qi-warning: #e6a23c;
+  --qi-danger: #f56c6c;
+  --qi-info: #909399;
+  --qi-bg: #f5f7fa;
+  --qi-text: #303133;
+  --qi-text-secondary: #606266;
+  --qi-border: #ebeef5;
+  /* A股涨红跌绿 */
+  --qi-up: #f56c6c;
+  --qi-down: #67c23a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, Helvetica,
+    Arial, sans-serif;
+  color: var(--qi-text);
+  background: var(--qi-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+}
+
+a {
+  color: var(--qi-primary);
+  text-decoration: none;
+}
+
+/* 涨跌颜色工具类 */
+.text-up {
+  color: var(--qi-up);
+}
+.text-down {
+  color: var(--qi-down);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c0c4cc;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #909399;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 通用间距 */
+.mt-16 {
+  margin-top: 16px;
+}
+.mb-16 {
+  margin-bottom: 16px;
+}

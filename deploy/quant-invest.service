@@ -1,0 +1,19 @@
+[Unit]
+Description=QuantInvest FastAPI backend
+After=network.target
+
+[Service]
+Type=simple
+User=quant
+Group=quant
+WorkingDirectory=/opt/quant-invest
+EnvironmentFile=/opt/quant-invest/.env
+ExecStart=/opt/quant-invest/venv/bin/python run.py --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=quant-invest
+
+[Install]
+WantedBy=multi-user.target
