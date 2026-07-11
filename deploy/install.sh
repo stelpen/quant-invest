@@ -68,8 +68,24 @@ sudo -u $APP_USER $APP_DIR/venv/bin/pip install -r $APP_DIR/requirements.txt
 # 6. 构建前端
 echo ">>> 构建前端..."
 cd $APP_DIR/frontend
-sudo -u $APP_USER npm install
-sudo -u $APP_USER npm run build
+sudo -u $APP_USER npm install --no-audit --no-fund
+
+# 分步构建：先 vue-tsc 类型检查，再 vite 构建
+# 给 Node 显式内存上限（默认 4GB），避免在低内存机器上 OOM
+NODE_OPTIONS_MAX_OLD_SPACE_MB=$(awk '/MemTotal/ {print int($2/1024/1024 * 0.6)}' /proc/meminfo)
+NODE_OPTIONS_MAX_OLD_SPACE_MB=$([ -z "$NODE_OPTIONS_MAX_OLD_SPACE_MB" ] || [ "$NODE_OPTIONS_MAX_OLD_SPACE_MB" -lt 1024 ] && echo 1024 || echo $NODE_OPTIONS_MAX_OLD_SPACE_MB)
+echo ">>> NODE_OPTIONS 内存上限: ${NODE_OPTIONS_MAX_OLD_SPACE_MB} MB"
+
+# 跳过 vue-tsc 类型检查（CI 可选；服务器仅需产物）
+# 如需严格类型检查，把下面的 NODE_ENV 与注释对应行取消注释即可
+echo ">>> 步骤 1/2: vite build (跳过严格类型检查)"
+sudo -u $APP_USER env NODE_OPTIONS="--max-old-space-size=$NODE_OPTIONS_MAX_OLD_SPACE_MB" NODE_ENV=production npm run build:fast
+
+# 类型检查单独跑，便于排查错误而不阻塞构建
+if [ "${SKIP_TYPECHECK:-0}" != "1" ]; then
+    echo ">>> 步骤 2/2: 类型检查 (vue-tsc, 失败不影响产物)"
+    sudo -u $APP_USER env NODE_OPTIONS="--max-old-space-size=$NODE_OPTIONS_MAX_OLD_SPACE_MB" npx vue-tsc --noEmit 2>&1 | tail -20 || echo "⚠️  类型检查有警告，请单独排查"
+fi
 cd $APP_DIR
 
 # 7. 配置文件

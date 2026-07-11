@@ -68,6 +68,32 @@ firewall-cmd --reload
 
 > 注意：阿里云还需在 ECS 控制台的**安全组**中放行 80/443 端口，否则外网无法访问。
 
+## 低内存服务器优化
+
+1GB 内存的轻量服务器在 `npm run build` 时可能 OOM Killed（前端构建内存峰值 ~1.5GB）。
+
+### 启用 swap（推荐）
+
+```bash
+sudo fallocate -l 1G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+### 安装脚本已内置 fast build
+
+`install.sh` 会自动使用 `npm run build:fast`（跳过 vue-tsc 类型检查），大幅降低内存峰值。构建产物正常，仅类型检查被跳过。
+
+如需手动构建：
+```bash
+cd /opt/quant-invest/frontend
+npm run build:fast   # 低内存环境
+# 或
+npm run build        # 包含 vue-tsc 类型检查（推荐 2GB+ 内存）
+```
+
 ## 数据备份
 
 ```bash
