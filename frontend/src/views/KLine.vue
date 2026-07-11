@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
-import { init, dispose, type Chart, type Indicator } from 'klinecharts'
+import { init, dispose, type Chart } from 'klinecharts'
 import { getKLine, syncData, type KLineResponse } from '@/api/data'
 import { Refresh } from '@element-plus/icons-vue'
 
@@ -43,8 +43,7 @@ function ensureIndicator(name: string) {
     indicatorsRegistered.value[name] = !indicatorsRegistered.value[name]
     return
   }
-  const ind: Indicator = { name: key, visible: true }
-  chart.createIndicator(ind, false)
+  chart.createIndicator({ name: key }, false)
   createdIndicators.push(key)
   indicatorsRegistered.value[name] = true
 }
@@ -105,6 +104,19 @@ function initChart() {
   if (!chartEl.value) return
   chart = init(chartEl.value)
 }
+
+const tableRows = computed(() => {
+  const data = klineData.value
+  if (!data) return []
+  return data.dates.map((d, i) => ({
+    date: d,
+    open: data.opens[i],
+    high: data.highs[i],
+    low: data.lows[i],
+    close: data.closes[i],
+    volume: data.volumes[i],
+  }))
+})
 
 async function onSync() {
   syncLoading.value = true
@@ -183,7 +195,7 @@ onBeforeUnmount(() => {
       <el-collapse-transition>
         <el-table
           v-if="showTable && klineData"
-          :data="klineData.dates.map((d, i) => ({ date: d, open: klineData.opens[i], high: klineData.highs[i], low: klineData.lows[i], close: klineData.closes[i], volume: klineData.volumes[i] }))"
+          :data="tableRows"
           size="small"
           stripe
           max-height="360"

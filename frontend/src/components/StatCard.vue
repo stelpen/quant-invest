@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 interface Props {
   title: string
   value: string | number
   change?: string | number
-  icon?: string
+  icon?: Component
   color?: string
 }
 withDefaults(defineProps<Props>(), { color: '#409EFF' })
